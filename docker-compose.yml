@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: afri
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-afri_confirm_2024}
+      POSTGRES_DB: africonfirm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U afri"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DATABASE_URL: postgresql://afri:${POSTGRES_PASSWORD:-afri_confirm_2024}@postgres:5432/africonfirm
+      REDIS_URL: redis://redis:6379
+      APP_URL: ${APP_URL:-http://localhost:3002}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      ADMIN_SECRET: ${ADMIN_SECRET:-change-me}
+      CALL_DELAY_SECONDS: ${CALL_DELAY_SECONDS:-5}
+      MAX_RETRY_ATTEMPTS: ${MAX_RETRY_ATTEMPTS:-3}
+      RETRY_DELAY_MINUTES: ${RETRY_DELAY_MINUTES:-30}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.afri-confirm.rule=Host(`confirm.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.afri-confirm.entrypoints=websecure"
+      - "traefik.http.routers.afri-confirm.tls.certresolver=letsencrypt"
+
+volumes:
+  postgres_data:
+  redis_data:

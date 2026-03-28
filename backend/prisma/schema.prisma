@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model CallJob {
+  id            String    @id @default(uuid())
+  shopifyOrderId String
+  shopifyShopDomain String
+  customerPhone String
+  customerName  String
+  orderTotal    Float
+  currency      String    @default("XOF")
+  items         Json
+  status        CallStatus @default(PENDING)
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(3)
+  twilioCallSid String?
+  transcripts   Json      @default("[]")
+  outcome       String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  scheduledAt   DateTime  @default(now())
+  calledAt      DateTime?
+  completedAt   DateTime?
+}
+
+model Shop {
+  id              String   @id @default(uuid())
+  domain          String   @unique
+  accessToken     String
+  webhookSecret   String
+  active          Boolean  @default(true)
+  agentLanguage   String   @default("fr")
+  agentVoice      String   @default("EXAVITQu4vr4xnSDxMaL") // ElevenLabs voice ID (French)
+  confirmPhrase   String?
+  cancelPhrase    String?
+  agentName       String   @default("Aïssa")
+  createdAt       DateTime @default(now())
+}
+
+enum CallStatus {
+  PENDING
+  CALLING
+  CONFIRMED
+  CANCELLED
+  NO_ANSWER
+  FAILED
+  RETRYING
+}
