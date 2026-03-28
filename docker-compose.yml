@@ -37,13 +37,13 @@ services:
       PORT: 3002
       DATABASE_URL: postgresql://afri:${POSTGRES_PASSWORD:-afri_confirm_2024}@postgres:5432/africonfirm
       REDIS_URL: redis://redis:6379
-      APP_URL: ${APP_URL:-http://localhost:3002}
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
-      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      APP_URL: ${APP_URL:-https://confirm-api.finablasolution.cloud}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
-      ADMIN_SECRET: ${ADMIN_SECRET:-change-me}
+      ADMIN_SECRET: ${ADMIN_SECRET:-AfriConfirm2024SecretAdmin!}
       CALL_DELAY_SECONDS: ${CALL_DELAY_SECONDS:-5}
       MAX_RETRY_ATTEMPTS: ${MAX_RETRY_ATTEMPTS:-3}
       RETRY_DELAY_MINUTES: ${RETRY_DELAY_MINUTES:-30}
@@ -54,9 +54,15 @@ services:
         condition: service_healthy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.afri-confirm.rule=Host(`confirm.${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.afri-confirm.entrypoints=websecure"
-      - "traefik.http.routers.afri-confirm.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.afri-confirm-api.rule=Host(`confirm-api.finablasolution.cloud`)"
+      - "traefik.http.routers.afri-confirm-api.entrypoints=websecure"
+      - "traefik.http.routers.afri-confirm-api.tls=true"
+      - "traefik.http.routers.afri-confirm-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.afri-confirm-api.loadbalancer.server.port=3002"
+      - "traefik.http.middlewares.afri-cors.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.afri-cors.headers.accesscontrolallowmethods=GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "traefik.http.middlewares.afri-cors.headers.accesscontrolallowheaders=Content-Type,Authorization"
+      - "traefik.http.routers.afri-confirm-api.middlewares=afri-cors"
 
 volumes:
   postgres_data:
