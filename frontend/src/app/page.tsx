@@ -11,8 +11,8 @@ export default function LandingPage() {
             <span className="font-bold text-lg">AfriConfirm</span>
           </div>
           <div className="flex gap-3">
-            <Link href="/dashboard" className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
-              Tableau de bord
+            <Link href="/demo" className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors">
+              Demo interactive
             </Link>
           </div>
         </div>
@@ -35,8 +35,8 @@ export default function LandingPage() {
             Votre agent vocal IA confirme ou annule la commande — sans intervention humaine.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/dashboard" className="bg-green-500 hover:bg-green-600 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-colors">
-              Voir la démo →
+            <Link href="/demo" className="bg-green-500 hover:bg-green-600 text-white px-8 py-3.5 rounded-xl font-semibold text-lg transition-colors">
+              Tester la démo →
             </Link>
             <a href="#how" className="border border-gray-700 hover:border-gray-500 text-gray-300 px-8 py-3.5 rounded-xl font-medium text-lg transition-colors">
               Comment ça marche
